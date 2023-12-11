@@ -9,14 +9,28 @@ import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './common/exceptions/base.exception.filter';
 import { HttpExceptionFilter } from './common/exceptions/http.exception.filter';
+// 文档内容
+import { generateDocument } from './doc';
 
-
+// 热更新配置
+declare const module: any;
 async function bootstrap() {
+  // 热启动配置
+  if(module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
+
+  
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
-  );
+    );
+    
+   // 文档创建
+   generateDocument(app)
 
+   
   // 配置统一响应格式
   app.useGlobalInterceptors(new TransformInterceptor());
   // 异常过滤器
